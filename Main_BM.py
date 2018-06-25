@@ -10,11 +10,31 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import matplotlib.pyplot as plt
 import time
+import argparse
+
 class Main_L(object):
     """docstring for Main_L"""
     def __init__(self,):
-        super(Main_L, self).__init__()
-                 
+        super(Main_L, self).__init__
+
+    def argparse(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-l','--L',help='nombre del archivo .m correspodiente a la Lead Field',type = str)
+        parser.add_argument('-v','--Ve',help='nombre del archivo .m correspodiente a los verts',type = str)
+        parser.add_argument('-f','--Fa',help='nombre del archivo .m correspodiente a las faces',type = str)
+        parser.add_argument('-c','--ch',help='nombre del archivo .m correspodiente a los canales',type = str)
+        parser.add_argument('-d','--archivo',help='nombre del archivo .txt que desea utilizar',type = str)
+        parser.add_argument('-b','--archivo2',help='nombre del archivo .edf correspondiente a las etiquetas')
+
+        parsedargs = parser.parse_args()
+        lead = parsedargs.L
+        verts=parsedargs.Ve
+        faces=parsedargs.Fa
+        channels=parsedargs.ch 
+        data=parsedargs.archivo
+        base=parsedargs.archivo2
+        
+        return lead,verts,faces,channels,data,base 
     def read_edf(self,name):
         f = pyedflib.EdfReader(name)
         Hdr={}
@@ -183,13 +203,16 @@ class Main_L(object):
         return idx
 
 l=Main_L()
-Lead_field='Data/L.mat' # Ubicacion de la Lead Field
-verts='Data/verts.mat' #Ubicacion de los verts
-faces='Data/faces.mat' # Ubicacion de las faces
-channels='Data/Channels.mat' #Ubicacion de los cannels
+lead,verts,faces,channels,data,base =l.argparse()
+Lead_field=lead # Ubicacion de la Lead Field
+verts=verts #Ubicacion de los verts
+faces=faces # Ubicacion de las faces
+channels=channels #Ubicacion de los cannels
+DataEEG=data # datos del EEG
+BaseEEG=base # etiquetas del EEG
 [L,verts,faces,channels]=l.load_BM_data(Lead_field,verts,faces,channels)#Loading Forward Model solution (LeadField)
-Y = np.loadtxt('EEG_data.txt')#cargar datos del EEG
-Hdr,record = l.read_edf('sujeto_base.edf')#cargar EEG
+Y = np.loadtxt(DataEEG)#cargar datos del EEG
+Hdr,_= l.read_edf(BaseEEG)# Cargar parametros del EEG
 print(Hdr["labels"])# Mostrar Etiquetas
 Y=Y.T
 # Source reconstruction
